@@ -246,14 +246,36 @@ struct Return(usize);
 impl Eval for Return {
     fn eval(&self, state: &mut State) -> Res<()> {
         debug_assert_eq!(state.mark(), 0);
-        state.pop_function();
+        state.pop_function()?;
         Ok(state.set_state(self.0, 0))
     }
 }
 
 struct Call {
-    function: usize,
+    start_id: usize,
     arguments: Vec<usize>,
+}
+
+impl Eval for Call {
+    fn eval(&self, state: &mut State) -> Res<()> {
+        if state.mark() < self.arguments.len() {
+            if state.mark() != 0 {
+                state.push_value();
+            }
+            state.set_state(state.id(), state.mark() + 1);
+            state.push_state();
+            state.set_state(self.arguments[state.mark()], 0);
+            Ok(())
+        } else if state.mark() == self.arguments.len() {
+            state.push_value();
+            let arguments = state.get_values(self.arguments.len());
+            state.push_function(arguments);
+            state.set_state(self.start_id, 0);
+            Ok(())
+        } else {
+            panic!()
+        }
+    }
 }
 
 enum Node {
@@ -263,6 +285,7 @@ enum Node {
     Argument(Argument),
     If(If),
     Return(Return),
+    Call(Call),
 }
 
 impl Eval for Node {
@@ -271,9 +294,10 @@ impl Eval for Node {
             Node::Start(s) => s.eval(state),
             Node::Number(n) => n.eval(state),
             Node::Binary(b) => b.eval(state),
-            Node::Argument(_) => todo!(),
-            Node::If(_) => todo!(),
+            Node::Argument(a) => a.eval(state),
+            Node::If(i) => i.eval(state),
             Node::Return(r) => r.eval(state),
+            Node::Call(c) => c.eval(state),
         }
     }
 }
@@ -365,8 +389,17 @@ impl State {
         ));
     }
 
-    fn pop_function(&mut self) {
-        self.current_function = self.functions_stack.pop().unwrap();
+    fn pop_function(&mut self) -> Res<()> {
+        match self.functions_stack.pop() {
+            Some(d) => Ok(self.current_function = d),
+            None => Err("".to_string()),
+        }
+    }
+
+    fn get_values(&mut self, count: usize) -> Vec<Value> {
+        let res = self.values_stack.iter().rev().take(count).cloned().collect();
+        self.values_stack.resize(self.values_stack.len() - count, Value::Void);
+        res
     }
 }
 
@@ -447,18 +480,28 @@ impl NodeStorage {
 
 fn main() {
     let mut nodes = IDMap::new();
-    let two = nodes.insert(Node::Number(Number(2.0)));
+    let one = nodes.insert(Node::Number(Number(1.0)));
+    let n = nodes.insert(Node::Argument(Argument(0)));
+    let le = nodes.insert(Node::Binary(Binary { oper: Operator::LessEquals, left: n, right: one }));
+    let ret1 = nodes.insert(Node::Return(Return(one)));
+    let sub = nodes.insert(Node::Binary(Binary { oper: Operator::Subtract, left: n, right: one }));
+    let call = nodes.insert(Node::Call(Call { start_id: 0, arguments: vec![sub] }));
     let multiply = nodes.insert(Node::Binary(Binary {
         oper: Operator::Multiply,
-        left: two,
-        right: two,
+        left: n,
+        right: call,
     }));
-    let subtract = nodes.insert(Node::Binary(Binary {
-        oper: Operator::Subtract,
-        left: multiply,
-        right: two,
-    }));
-    let ret = nodes.insert(Node::Return(Return(subtract)));
+    let retm = nodes.insert(Node::Return(Return(multiply)));
+    let ifc = nodes.insert(Node::If(If { condition: le, on_then: ret1, on_else: retm }));
+    let start_f = nodes.insert(Node::Start(Start(ifc)));
+    if let Node::Call(c) = nodes.get_mut(call).unwrap() {
+        c.start_id = start_f;
+    } else {
+        panic!();
+    }
+    let n = nodes.insert(Node::Number(Number(6.0)));
+    let call = nodes.insert(Node::Call(Call { start_id: start_f, arguments: vec![n] }));
+    let ret = nodes.insert(Node::Return(Return(call)));
     let start = nodes.insert(Node::Start(Start(ret)));
 
     let mut state = State::new(start, vec![]);
