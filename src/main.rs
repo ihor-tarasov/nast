@@ -125,7 +125,7 @@ impl Eval for Number {
     fn eval(&self, state: &mut State) -> Res<()> {
         debug_assert_eq!(state.mark(), 0);
         state.pop_state()?;
-        Ok(state.set_value(self.0))
+        Ok(state.set_value(Value::Number(self.0)))
     }
 }
 
@@ -161,9 +161,33 @@ impl Eval for Binary {
                 state.pop_value();
                 let lhs = state.get_value();
                 match self.oper {
-                    Operator::Subtract => Ok(state.set_value(lhs - rhs)),
-                    Operator::Multiply => Ok(state.set_value(lhs * rhs)),
-                    Operator::LessEquals => todo!(),
+                    Operator::Subtract => Ok(state.set_value(match (lhs, rhs) {
+                        (Value::Number(lhs), Value::Number(rhs)) => Value::Number(lhs - rhs),
+                        _ => {
+                            return Err(format!(
+                                "Unsupported input values {:?} and {:?} for Subtract node.",
+                                lhs, rhs
+                            ))
+                        }
+                    })),
+                    Operator::Multiply => Ok(state.set_value(match (lhs, rhs) {
+                        (Value::Number(lhs), Value::Number(rhs)) => Value::Number(lhs * rhs),
+                        _ => {
+                            return Err(format!(
+                                "Unsupported input values {:?} and {:?} for Multiply node.",
+                                lhs, rhs
+                            ))
+                        }
+                    })),
+                    Operator::LessEquals => Ok(state.set_value(match (lhs, rhs) {
+                        (Value::Number(lhs), Value::Number(rhs)) => Value::Boolean(lhs <= rhs),
+                        _ => {
+                            return Err(format!(
+                                "Unsupported input values {:?} and {:?} for LessEquals node.",
+                                lhs, rhs
+                            ))
+                        }
+                    })),
                 }
             }
             _ => panic!(),
@@ -173,10 +197,48 @@ impl Eval for Binary {
 
 struct Argument(usize);
 
+impl Eval for Argument {
+    fn eval(&self, state: &mut State) -> Res<()> {
+        debug_assert_eq!(state.mark(), 0);
+        state.pop_state()?;
+        Ok(state.load_argument(self.0))
+    }
+}
+
 struct If {
     condition: usize,
     on_then: usize,
     on_else: usize,
+}
+
+impl Eval for If {
+    fn eval(&self, state: &mut State) -> Res<()> {
+        match state.mark() {
+            0 => {
+                state.set_state(state.id(), 1);
+                state.push_state();
+                Ok(state.set_state(self.condition, 0))
+            }
+            1 => {
+                let condition = state.get_value();
+                let condition = match condition {
+                    Value::Boolean(v) => v,
+                    _ => {
+                        return Err(format!(
+                            "For If node Boolean type expected for 'condition' input, found {:?}",
+                            condition
+                        ))
+                    }
+                };
+                if condition {
+                    Ok(state.set_state(self.on_then, 0))
+                } else {
+                    Ok(state.set_state(self.on_else, 0))
+                }
+            }
+            _ => panic!(),
+        }
+    }
 }
 
 struct Return(usize);
@@ -184,6 +246,7 @@ struct Return(usize);
 impl Eval for Return {
     fn eval(&self, state: &mut State) -> Res<()> {
         debug_assert_eq!(state.mark(), 0);
+        state.pop_function();
         Ok(state.set_state(self.0, 0))
     }
 }
@@ -221,25 +284,32 @@ struct NodeState {
     mark: usize,
 }
 
-struct FunctionState(Vec<f64>);
+#[derive(Debug, Clone, Copy)]
+enum Value {
+    Void,
+    Boolean(bool),
+    Number(f64),
+}
+
+struct FunctionState(Vec<Value>);
 
 struct State {
     states_stack: Vec<NodeState>,
-    values_stack: Vec<f64>,
+    values_stack: Vec<Value>,
     functions_stack: Vec<FunctionState>,
     current_state: NodeState,
-    current_value: f64,
+    current_value: Value,
     current_function: FunctionState,
 }
 
 impl State {
-    fn new(id: usize, args: Vec<f64>) -> Self {
+    fn new(id: usize, args: Vec<Value>) -> Self {
         Self {
             states_stack: Vec::new(),
             values_stack: Vec::new(),
             functions_stack: Vec::new(),
             current_state: NodeState { id, mark: 0 },
-            current_value: 0.0,
+            current_value: Value::Void,
             current_function: FunctionState(args),
         }
     }
@@ -268,11 +338,11 @@ impl State {
         self.states_stack.push(self.current_state)
     }
 
-    fn set_value(&mut self, v: f64) {
+    fn set_value(&mut self, v: Value) {
         self.current_value = v;
     }
 
-    fn get_value(&self) -> f64 {
+    fn get_value(&self) -> Value {
         self.current_value
     }
 
@@ -282,6 +352,21 @@ impl State {
 
     fn push_value(&mut self) {
         self.values_stack.push(self.current_value)
+    }
+
+    fn load_argument(&mut self, index: usize) {
+        self.current_value = self.current_function.0[index];
+    }
+
+    fn push_function(&mut self, args: Vec<Value>) {
+        self.functions_stack.push(std::mem::replace(
+            &mut self.current_function,
+            FunctionState(args),
+        ));
+    }
+
+    fn pop_function(&mut self) {
+        self.current_function = self.functions_stack.pop().unwrap();
     }
 }
 
@@ -347,7 +432,7 @@ fn step(nodes: &IDMap<Node>, state: &mut State) -> Res<bool> {
     }
 }
 
-fn run(nodes: &IDMap<Node>, state: &mut State) -> Res<f64> {
+fn run(nodes: &IDMap<Node>, state: &mut State) -> Res<Value> {
     while step(nodes, state)? {}
     Ok(state.get_value())
 }
@@ -378,7 +463,7 @@ fn main() {
 
     let mut state = State::new(start, vec![]);
     match run(&nodes, &mut state) {
-        Ok(v) => println!("{v}"),
+        Ok(v) => println!("{v:?}"),
         Err(e) => println!("Error: {e}"),
     }
 }
