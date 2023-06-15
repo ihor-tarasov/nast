@@ -245,9 +245,20 @@ struct Return(usize);
 
 impl Eval for Return {
     fn eval(&self, state: &mut State) -> Res<()> {
-        debug_assert_eq!(state.mark(), 0);
-        state.pop_function()?;
-        Ok(state.set_state(self.0, 0))
+        match state.mark() {
+            0 => {
+                state.set_state(state.id(), 1);
+                state.push_state();
+                state.set_state(self.0, 0);
+                Ok(())
+            }
+            1 => {
+                state.pop_function()?;
+                state.pop_state()?;
+                Ok(())
+            }
+            _ => panic!()
+        }
     }
 }
 
@@ -264,7 +275,7 @@ impl Eval for Call {
             }
             state.set_state(state.id(), state.mark() + 1);
             state.push_state();
-            state.set_state(self.arguments[state.mark()], 0);
+            state.set_state(self.arguments[state.mark() - 1], 0);
             Ok(())
         } else if state.mark() == self.arguments.len() {
             state.push_value();
