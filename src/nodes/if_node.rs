@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Value};
+use crate::{Eval, State, Res, Value, Connect};
 
 pub struct If {
     pub condition: usize,
@@ -32,6 +32,17 @@ impl Eval for If {
         match state.mark() {
             0 => self.push_condition(state),
             1 => self.push_then_or_else(state),
+            _ => panic!(),
+        }
+    }
+}
+
+impl Connect for If {
+    fn connect(&mut self, port: usize, id: usize) {
+        match port {
+            0 => self.condition = id,
+            1 => self.on_then = id,
+            2 => self.on_else = id,
             _ => panic!(),
         }
     }

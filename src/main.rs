@@ -1,4 +1,3 @@
-
 /*
 struct Info {
     name: &'static str,
@@ -83,55 +82,37 @@ const STD_NODES: &[Info] = &[
         content: None,
         description: "If statement.",
     },
+    Info {
+        name: "Factorial",
+        trigger: false,
+        inputs: &["n"],
+        flows: &[],
+        outputs: &["result"],
+        content: None,
+        description: "Function call.",
+    },
 ];
-
-enum Content {
-    Number(f64),
-    Identifier(String),
-}
-
-struct Instance {
-    name: String,
-    trigger: bool,
-    inputs: Vec<Option<usize>>,
-    flows: Vec<Option<usize>>,
-    outputs: Vec<Option<usize>>,
-    content: Option<Content>,
-}
-
-struct Function {
-    instances: IDMap<Instance>,
-    arguments: Vec<String>,
-}
 */
 
-use nast::{utils::IDMap, Node, nodes::*, State};
+use nast::{utils::IDMap, State, Connect};
 
 fn main() {
     let mut nodes = IDMap::new();
-    let one = nodes.insert(Node::Number(Number(1.0)));
-    let n = nodes.insert(Node::Argument(Argument(0)));
-    let le = nodes.insert(Node::Binary(Binary { oper: Operator::LessEquals, left: n, right: one }));
-    let ret1 = nodes.insert(Node::Return(Return(one)));
-    let sub = nodes.insert(Node::Binary(Binary { oper: Operator::Subtract, left: n, right: one }));
-    let call = nodes.insert(Node::Call(Call { start_id: 0, arguments: vec![sub] }));
-    let multiply = nodes.insert(Node::Binary(Binary {
-        oper: Operator::Multiply,
-        left: n,
-        right: call,
-    }));
-    let retm = nodes.insert(Node::Return(Return(multiply)));
-    let ifc = nodes.insert(Node::If(If { condition: le, on_then: ret1, on_else: retm }));
-    let start_f = nodes.insert(Node::Start(Start(ifc)));
-    if let Node::Call(c) = nodes.get_mut(call).unwrap() {
-        c.start_id = start_f;
-    } else {
-        panic!();
-    }
-    let n = nodes.insert(Node::Number(Number(6.0)));
-    let call = nodes.insert(Node::Call(Call { start_id: start_f, arguments: vec![n] }));
-    let ret = nodes.insert(Node::Return(Return(call)));
-    let start = nodes.insert(Node::Start(Start(ret)));
+    let one = nodes.insert(nast::number(1.0));
+    let n = nodes.insert(nast::argument(0));
+    let le = nodes.insert(nast::less_equals(n, one));
+    let ret1 = nodes.insert(nast::return_node(one));
+    let sub = nodes.insert(nast::subtract(n, one));
+    let call = nodes.insert(nast::call(0, vec![sub]));
+    let multiply = nodes.insert(nast::multiply(n, call));
+    let retm = nodes.insert(nast::return_node(multiply));
+    let ifc = nodes.insert(nast::if_node(le, ret1, retm));
+    let start_f = nodes.insert(nast::start(ifc));
+    nodes.get_mut(call).unwrap().connect(0, start_f);
+    let n = nodes.insert(nast::number(6.0));
+    let call = nodes.insert(nast::call(start_f, vec![n]));
+    let ret = nodes.insert(nast::return_node(call));
+    let start = nodes.insert(nast::start(ret));
 
     let mut state = State::new(start, vec![]);
     match nast::run(&nodes, &mut state) {

@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Value};
+use crate::{Eval, State, Res, Value, Connect};
 
 #[derive(Clone, Copy)]
 pub enum Operator {
@@ -71,6 +71,16 @@ impl Eval for Binary {
             0 => self.push_left(state),
             1 => self.push_right(state),
             2 => self.eval_internal(state),
+            _ => panic!(),
+        }
+    }
+}
+
+impl Connect for Binary {
+    fn connect(&mut self, port: usize, id: usize) {
+        match port {
+            0 => self.left = id,
+            1 => self.right = id,
             _ => panic!(),
         }
     }

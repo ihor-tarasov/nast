@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res};
+use crate::{Eval, State, Res, Connect};
 
 pub struct Call {
     pub start_id: usize,
@@ -31,6 +31,18 @@ impl Eval for Call {
             self.push_argument(state)
         } else if state.mark() == self.arguments.len() {
             self.push_function(state)
+        } else {
+            panic!()
+        }
+    }
+}
+
+impl Connect for Call {
+    fn connect(&mut self, port: usize, id: usize) {
+        if port < self.arguments.len() {
+            self.arguments[port] = id;
+        } else if port == self.arguments.len() {
+            self.start_id = id;
         } else {
             panic!()
         }

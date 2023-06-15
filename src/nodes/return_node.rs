@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res};
+use crate::{Eval, State, Res, Connect};
 
 pub struct Return(pub usize);
 
@@ -23,6 +23,15 @@ impl Eval for Return {
             0 => self.push_return_state(state),
             1 => self.pop(state),
             _ => panic!()
+        }
+    }
+}
+
+impl Connect for Return {
+    fn connect(&mut self, port: usize, id: usize) {
+        match port {
+            0 => self.0 = id,
+            _ => panic!(),
         }
     }
 }
