@@ -108,7 +108,7 @@ fn main() {
     let retm = nodes.insert(nast::return_node(multiply));
     let ifc = nodes.insert(nast::if_node(le, ret1, retm));
     let start_f = nodes.insert(nast::start(ifc));
-    nodes.get_mut(call).unwrap().connect(0, start_f);
+    nodes.get_mut(call).unwrap().connect(1, start_f);
     let n = nodes.insert(nast::number(6.0));
     let call = nodes.insert(nast::call(start_f, vec![n]));
     let ret = nodes.insert(nast::return_node(call));
