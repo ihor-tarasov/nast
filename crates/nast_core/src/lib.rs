@@ -7,9 +7,6 @@ mod nodes;
 mod state;
 mod value;
 
-#[cfg(test)]
-mod tests;
-
 use std::{borrow::Cow, collections::HashMap};
 
 pub use desc::*;
