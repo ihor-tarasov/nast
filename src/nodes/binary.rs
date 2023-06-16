@@ -105,7 +105,7 @@ impl Build for Binary {
         match name.as_str() {
             "left" => Ok(self.left = id),
             "right" => Ok(self.right = id),
-            _ => Build::push_input(self, name, id, builder)
+            _ => Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
         }
     }
 }

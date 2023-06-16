@@ -52,6 +52,6 @@ impl Build for Call {
                 }
             }
         }
-        Build::push_input(self, name, id, builder)
+        Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
     }
 }

@@ -42,7 +42,7 @@ impl Build for If {
     fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
         match name.as_str() {
             "condition" => Ok(self.condition = id),
-            _ => Build::push_input(self, name, id, builder)
+            _ => Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
         }
     }
 
@@ -50,7 +50,7 @@ impl Build for If {
         match name.as_str() {
             "then" => Ok(self.on_then = id),
             "else" => Ok(self.on_else = id),
-            _ => Build::push_flow(self, name, id, builder)
+            _ => Err(format!("Incompatible flow name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
         }
     }
 }

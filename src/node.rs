@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{State, Res, Build};
 use crate::nodes::*;
 
@@ -70,6 +72,8 @@ impl Build for NodeEnum {
 
 #[derive(Debug)]
 pub struct Node(NodeEnum);
+
+pub type Nodes = HashMap<usize, Node>;
 
 impl TryFrom<&String> for Node {
     type Error = ();

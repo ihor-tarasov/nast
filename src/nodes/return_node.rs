@@ -32,7 +32,7 @@ impl Build for Return {
     fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
         match name.as_str() {
             "result" => Ok(self.0 = id),
-            _ => Build::push_input(self, name, id, builder)
+            _ => Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
         }
     }
 }

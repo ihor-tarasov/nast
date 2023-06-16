@@ -14,7 +14,7 @@ impl Build for Start {
     fn push_flow(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
         match name.as_str() {
             "flow" => Ok(self.0 = id),
-            _ => Build::push_flow(self, name, id, builder)
+            _ => Err(format!("Incompatible flow name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
         }
     }
 }

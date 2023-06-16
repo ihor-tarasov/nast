@@ -15,7 +15,7 @@ impl Build for Number {
     fn push_content(&mut self, content: &crate::Content, builder: &crate::Builder) -> Res<()> {
         match content {
             crate::Content::Number(v) => Ok(self.0 = *v),
-            _ => Build::push_content(self, content, builder)
+            _ => Err(format!("Incompatible content \"{:?}\" for node \"{}\" in function \"{}\"", content, builder.desc.name, builder.function.name))
         }
     }
 }
