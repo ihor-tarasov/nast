@@ -5,6 +5,9 @@ mod state;
 mod value;
 mod nodes;
 
+#[cfg(test)]
+mod tests;
+
 pub use node::*;
 pub use state::*;
 pub use value::*;
