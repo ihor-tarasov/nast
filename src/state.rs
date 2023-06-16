@@ -1,15 +1,19 @@
+use serde::{Serialize, Deserialize};
+
 use crate::Value;
 
 pub type Res<T> = Result<T, String>;
 
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 struct NodeState {
     id: usize,
     mark: usize,
 }
 
+#[derive(Serialize, Deserialize)]
 struct FunctionState(Vec<Value>);
 
+#[derive(Serialize, Deserialize)]
 pub struct State {
     states_stack: Vec<NodeState>,
     values_stack: Vec<Value>,

@@ -9,6 +9,8 @@ pub struct Function {
     pub arguments: Vec<String>,
     pub start: usize,
     pub descs: Vec<Desc>,
+    #[serde(default)]
+    pub description: String,
 }
 
 pub type Functions = HashMap<String, Function>;
