@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Build};
+use crate::{Build, Eval, Res, State};
 
 #[derive(Default, Debug)]
 pub struct Start(usize);
@@ -14,7 +14,10 @@ impl Build for Start {
     fn push_flow(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
         match name.as_str() {
             "flow" => Ok(self.0 = id),
-            _ => Err(format!("Incompatible flow name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+            _ => Err(format!(
+                "Incompatible flow name \"{}\" for node \"{}\" in function \"{}\"",
+                name, builder.desc.name, builder.function.name
+            )),
         }
     }
 }

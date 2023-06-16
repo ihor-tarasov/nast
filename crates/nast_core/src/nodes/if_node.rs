@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Value, Build};
+use crate::{Build, Eval, Res, State, Value};
 
 #[derive(Default, Debug)]
 pub struct If {
@@ -16,10 +16,13 @@ impl If {
 
     fn push_then_or_else(&self, state: &mut State) -> Res<()> {
         let condition = state.get_value();
-        let condition = match condition {
-            Value::Boolean(v) => v,
-            _ => return Err(format!("For If node Boolean type expected for 'condition' input, found {condition:?}"))
-        };
+        let condition =
+            match condition {
+                Value::Boolean(v) => v,
+                _ => return Err(format!(
+                    "For If node Boolean type expected for 'condition' input, found {condition:?}"
+                )),
+            };
         if condition {
             Ok(state.set_state(self.on_then, 0))
         } else {
@@ -42,7 +45,10 @@ impl Build for If {
     fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
         match name.as_str() {
             "condition" => Ok(self.condition = id),
-            _ => Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+            _ => Err(format!(
+                "Incompatible input name \"{}\" for node \"{}\" in function \"{}\"",
+                name, builder.desc.name, builder.function.name
+            )),
         }
     }
 
@@ -50,7 +56,10 @@ impl Build for If {
         match name.as_str() {
             "then" => Ok(self.on_then = id),
             "else" => Ok(self.on_else = id),
-            _ => Err(format!("Incompatible flow name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+            _ => Err(format!(
+                "Incompatible flow name \"{}\" for node \"{}\" in function \"{}\"",
+                name, builder.desc.name, builder.function.name
+            )),
         }
     }
 }

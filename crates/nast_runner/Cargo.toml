@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+nast_dylib = { path = "../nast_dylib", version = "0.1.0" }
 nast_json = { path = "../nast_json", version = "0.1.0" }

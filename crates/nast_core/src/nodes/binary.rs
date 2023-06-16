@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Value, Build};
+use crate::{Build, Eval, Res, State, Value};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Operator {
@@ -15,7 +15,7 @@ impl TryFrom<&String> for Operator {
             "Subtract" => Ok(Operator::Subtract),
             "Multiply" => Ok(Operator::Multiply),
             "LessEquals" => Ok(Operator::LessEquals),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -23,21 +23,27 @@ impl TryFrom<&String> for Operator {
 fn subtract(left: Value, right: Value) -> Res<Value> {
     match (left, right) {
         (Value::Number(left), Value::Number(right)) => Ok(Value::Number(left - right)),
-        _ => Err(format!("Unsupported input values {left:?} and {right:?} for Subtract node.")),
+        _ => Err(format!(
+            "Unsupported input values {left:?} and {right:?} for Subtract node."
+        )),
     }
 }
 
 fn multiply(left: Value, right: Value) -> Res<Value> {
     match (left, right) {
         (Value::Number(left), Value::Number(right)) => Ok(Value::Number(left * right)),
-        _ => Err(format!("Unsupported input values {left:?} and {right:?} for Multiply node.")),
+        _ => Err(format!(
+            "Unsupported input values {left:?} and {right:?} for Multiply node."
+        )),
     }
 }
 
 fn less_equals(left: Value, right: Value) -> Res<Value> {
     match (left, right) {
         (Value::Number(left), Value::Number(right)) => Ok(Value::Boolean(left <= right)),
-        _ => Err(format!("Unsupported input values {left:?} and {right:?} for LessEquals node.")),
+        _ => Err(format!(
+            "Unsupported input values {left:?} and {right:?} for LessEquals node."
+        )),
     }
 }
 
@@ -105,7 +111,10 @@ impl Build for Binary {
         match name.as_str() {
             "left" => Ok(self.left = id),
             "right" => Ok(self.right = id),
-            _ => Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+            _ => Err(format!(
+                "Incompatible input name \"{}\" for node \"{}\" in function \"{}\"",
+                name, builder.desc.name, builder.function.name
+            )),
         }
     }
 }

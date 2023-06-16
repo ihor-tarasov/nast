@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Build, Content, Builder};
+use crate::{Build, Builder, Content, Eval, Res, State};
 
 #[derive(Default, Debug)]
 pub struct Argument(usize);
@@ -15,13 +15,25 @@ impl Build for Argument {
     fn push_content(&mut self, content: &Content, builder: &Builder) -> Res<()> {
         match content {
             Content::Identifier(name) => {
-                if let Some((index, _)) = builder.function.arguments.iter().enumerate().find(|(_, n)| n == &name) {
+                if let Some((index, _)) = builder
+                    .function
+                    .arguments
+                    .iter()
+                    .enumerate()
+                    .find(|(_, n)| n == &name)
+                {
                     Ok(self.0 = index)
                 } else {
-                    Err(format!("Argument \"{}\" not exist for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+                    Err(format!(
+                        "Argument \"{}\" not exist for node \"{}\" in function \"{}\"",
+                        name, builder.desc.name, builder.function.name
+                    ))
                 }
-            },
-            _ => Err(format!("Expected \"Identifier\" content for node \"{}\" in function \"{}\"", builder.desc.name, builder.function.name)),
+            }
+            _ => Err(format!(
+                "Expected \"Identifier\" content for node \"{}\" in function \"{}\"",
+                builder.desc.name, builder.function.name
+            )),
         }
     }
 }

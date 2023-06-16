@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Value, Build};
+use crate::{Build, Eval, Res, State, Value};
 
 #[derive(Default, Debug)]
 pub struct Number(f64);
@@ -15,7 +15,10 @@ impl Build for Number {
     fn push_content(&mut self, content: &crate::Content, builder: &crate::Builder) -> Res<()> {
         match content {
             crate::Content::Number(v) => Ok(self.0 = *v),
-            _ => Err(format!("Incompatible content \"{:?}\" for node \"{}\" in function \"{}\"", content, builder.desc.name, builder.function.name))
+            _ => Err(format!(
+                "Incompatible content \"{:?}\" for node \"{}\" in function \"{}\"",
+                content, builder.desc.name, builder.function.name
+            )),
         }
     }
 }

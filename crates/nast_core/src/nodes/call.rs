@@ -1,4 +1,4 @@
-use crate::{Eval, State, Res, Build};
+use crate::{Build, Eval, Res, State};
 
 #[derive(Default, Debug)]
 pub struct Call {
@@ -48,10 +48,13 @@ impl Build for Call {
             for i in 0..function.arguments.len() {
                 if function.arguments[i].eq(name) {
                     self.arguments[i] = id;
-                    return Ok(())
+                    return Ok(());
                 }
             }
         }
-        Err(format!("Incompatible input name \"{}\" for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+        Err(format!(
+            "Incompatible input name \"{}\" for node \"{}\" in function \"{}\"",
+            name, builder.desc.name, builder.function.name
+        ))
     }
 }

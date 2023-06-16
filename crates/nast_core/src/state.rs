@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::Value;
 
@@ -94,8 +94,15 @@ impl State {
     }
 
     pub fn get_values(&mut self, count: usize) -> Vec<Value> {
-        let res = self.values_stack.iter().rev().take(count).cloned().collect();
-        self.values_stack.resize(self.values_stack.len() - count, Value::Void);
+        let res = self
+            .values_stack
+            .iter()
+            .rev()
+            .take(count)
+            .cloned()
+            .collect();
+        self.values_stack
+            .resize(self.values_stack.len() - count, Value::Void);
         res
     }
 }

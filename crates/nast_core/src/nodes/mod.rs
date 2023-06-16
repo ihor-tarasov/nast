@@ -1,15 +1,15 @@
-mod start;
-mod number;
-mod binary;
 mod argument;
-mod if_node;
-mod return_node;
+mod binary;
 mod call;
+mod if_node;
+mod number;
+mod return_node;
+mod start;
 
-pub use start::*;
-pub use number::*;
-pub use binary::*;
 pub use argument::*;
-pub use if_node::*;
-pub use return_node::*;
+pub use binary::*;
 pub use call::*;
+pub use if_node::*;
+pub use number::*;
+pub use return_node::*;
+pub use start::*;

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::{State, Res, Build};
 use crate::nodes::*;
+use crate::{Build, Res, State};
 
 pub trait Eval {
     fn eval(&self, state: &mut State) -> Res<()>;
@@ -88,7 +88,7 @@ impl TryFrom<&String> for Node {
             "Number" => Ok(Node(NodeEnum::Number(Number::default()))),
             "Return" => Ok(Node(NodeEnum::Return(Return::default()))),
             "Start" => Ok(Node(NodeEnum::Start(Start::default()))),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
