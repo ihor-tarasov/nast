@@ -1,6 +1,7 @@
-use crate::{Eval, State, Res, Connect};
+use crate::{Eval, State, Res, Build, Content, Builder};
 
-pub struct Argument(pub usize);
+#[derive(Default, Debug)]
+pub struct Argument(usize);
 
 impl Eval for Argument {
     fn eval(&self, state: &mut State) -> Res<()> {
@@ -10,11 +11,17 @@ impl Eval for Argument {
     }
 }
 
-impl Connect for Argument {
-    fn connect(&mut self, port: usize, id: usize) {
-        match port {
-            0 => self.0 = id,
-            _ => panic!(),
+impl Build for Argument {
+    fn push_content(&mut self, content: &Content, builder: &Builder) -> Res<()> {
+        match content {
+            Content::Identifier(name) => {
+                if let Some((index, _)) = builder.function.arguments.iter().cloned().enumerate().find(|(_, n)| n == name) {
+                    Ok(self.0 = index)
+                } else {
+                    Err(format!("Variable \"{}\" not exist for node \"{}\" in function \"{}\"", name, builder.desc.name, builder.function.name))
+                }
+            },
+            _ => Err(format!("Expected identifier content for node \"{}\" in function \"{}\"", builder.desc.name, builder.function.name)),
         }
     }
 }

@@ -1,6 +1,7 @@
-use crate::{Eval, State, Res, Connect};
+use crate::{Eval, State, Res, Build};
 
-pub struct Return(pub usize);
+#[derive(Default, Debug)]
+pub struct Return(usize);
 
 impl Return {
     fn push_return_state(&self, state: &mut State) -> Res<()> {
@@ -27,11 +28,11 @@ impl Eval for Return {
     }
 }
 
-impl Connect for Return {
-    fn connect(&mut self, port: usize, id: usize) {
-        match port {
-            0 => self.0 = id,
-            _ => panic!(),
+impl Build for Return {
+    fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
+        match name.as_str() {
+            "result" => Ok(self.0 = id),
+            _ => Build::push_input(self, name, id, builder)
         }
     }
 }

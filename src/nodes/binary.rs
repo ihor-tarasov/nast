@@ -1,10 +1,23 @@
-use crate::{Eval, State, Res, Value, Connect};
+use crate::{Eval, State, Res, Value, Build};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Operator {
     Subtract,
     Multiply,
     LessEquals,
+}
+
+impl TryFrom<&String> for Operator {
+    type Error = ();
+
+    fn try_from(value: &String) -> Result<Self, Self::Error> {
+        match value.as_str() {
+            "Subtract" => Ok(Operator::Subtract),
+            "Multiply" => Ok(Operator::Multiply),
+            "LessEquals" => Ok(Operator::LessEquals),
+            _ => Err(())
+        }
+    }
 }
 
 fn subtract(left: Value, right: Value) -> Res<Value> {
@@ -36,10 +49,21 @@ fn eval_operator(oper: Operator, left: Value, right: Value) -> Res<Value> {
     }
 }
 
+#[derive(Debug)]
 pub struct Binary {
-    pub oper: Operator,
-    pub left: usize,
-    pub right: usize,
+    oper: Operator,
+    left: usize,
+    right: usize,
+}
+
+impl From<Operator> for Binary {
+    fn from(value: Operator) -> Self {
+        Self {
+            oper: value,
+            left: Default::default(),
+            right: Default::default(),
+        }
+    }
 }
 
 impl Binary {
@@ -76,12 +100,12 @@ impl Eval for Binary {
     }
 }
 
-impl Connect for Binary {
-    fn connect(&mut self, port: usize, id: usize) {
-        match port {
-            0 => self.left = id,
-            1 => self.right = id,
-            _ => panic!(),
+impl Build for Binary {
+    fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
+        match name.as_str() {
+            "left" => Ok(self.left = id),
+            "right" => Ok(self.right = id),
+            _ => Build::push_input(self, name, id, builder)
         }
     }
 }

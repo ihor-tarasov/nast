@@ -1,6 +1,7 @@
-use crate::{Eval, State, Res, Value, Connect};
+use crate::{Eval, State, Res, Value, Build};
 
-pub struct Number(pub f64);
+#[derive(Default, Debug)]
+pub struct Number(f64);
 
 impl Eval for Number {
     fn eval(&self, state: &mut State) -> Res<()> {
@@ -10,8 +11,11 @@ impl Eval for Number {
     }
 }
 
-impl Connect for Number {
-    fn connect(&mut self, _port: usize, _id: usize) {
-        panic!()
+impl Build for Number {
+    fn push_content(&mut self, content: &crate::Content, builder: &crate::Builder) -> Res<()> {
+        match content {
+            crate::Content::Number(v) => Ok(self.0 = *v),
+            _ => Build::push_content(self, content, builder)
+        }
     }
 }

@@ -1,9 +1,10 @@
-use crate::{Eval, State, Res, Value, Connect};
+use crate::{Eval, State, Res, Value, Build};
 
+#[derive(Default, Debug)]
 pub struct If {
-    pub condition: usize,
-    pub on_then: usize,
-    pub on_else: usize,
+    condition: usize,
+    on_then: usize,
+    on_else: usize,
 }
 
 impl If {
@@ -37,13 +38,19 @@ impl Eval for If {
     }
 }
 
-impl Connect for If {
-    fn connect(&mut self, port: usize, id: usize) {
-        match port {
-            0 => self.condition = id,
-            1 => self.on_then = id,
-            2 => self.on_else = id,
-            _ => panic!(),
+impl Build for If {
+    fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
+        match name.as_str() {
+            "condition" => Ok(self.condition = id),
+            _ => Build::push_input(self, name, id, builder)
+        }
+    }
+
+    fn push_flow(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
+        match name.as_str() {
+            "then" => Ok(self.on_then = id),
+            "else" => Ok(self.on_else = id),
+            _ => Build::push_flow(self, name, id, builder)
         }
     }
 }

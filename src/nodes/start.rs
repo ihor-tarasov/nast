@@ -1,6 +1,7 @@
-use crate::{Eval, State, Res, Connect};
+use crate::{Eval, State, Res, Build};
 
-pub struct Start(pub usize);
+#[derive(Default, Debug)]
+pub struct Start(usize);
 
 impl Eval for Start {
     fn eval(&self, state: &mut State) -> Res<()> {
@@ -9,11 +10,11 @@ impl Eval for Start {
     }
 }
 
-impl Connect for Start {
-    fn connect(&mut self, port: usize, id: usize) {
-        match port {
-            0 => self.0 = id,
-            _ => panic!(),
+impl Build for Start {
+    fn push_flow(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
+        match name.as_str() {
+            "flow" => Ok(self.0 = id),
+            _ => Build::push_flow(self, name, id, builder)
         }
     }
 }

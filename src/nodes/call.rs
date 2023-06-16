@@ -1,8 +1,9 @@
-use crate::{Eval, State, Res, Connect};
+use crate::{Eval, State, Res, Build};
 
+#[derive(Default, Debug)]
 pub struct Call {
-    pub start_id: usize,
-    pub arguments: Vec<usize>,
+    start_id: usize,
+    arguments: Vec<usize>,
 }
 
 impl Call {
@@ -37,14 +38,20 @@ impl Eval for Call {
     }
 }
 
-impl Connect for Call {
-    fn connect(&mut self, port: usize, id: usize) {
-        if port < self.arguments.len() {
-            self.arguments[port] = id;
-        } else if port == self.arguments.len() {
-            self.start_id = id;
-        } else {
-            panic!()
+impl Build for Call {
+    fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
+        if let Some(function) = builder.functions.get(&builder.desc.name) {
+            self.start_id = function.start;
+            if self.arguments.len() != function.arguments.len() {
+                self.arguments.resize(function.arguments.len(), 0);
+            }
+            for i in 0..function.arguments.len() {
+                if function.arguments[i].eq(name) {
+                    self.arguments[i] = id;
+                    return Ok(())
+                }
+            }
         }
+        Build::push_input(self, name, id, builder)
     }
 }

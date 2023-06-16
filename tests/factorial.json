@@ -1,0 +1,122 @@
+[
+    {
+        "name": "Factorial",
+        "arguments": [
+            "n"
+        ],
+        "start": 9,
+        "descs": [
+            {
+                "id": 0,
+                "name": "Number",
+                "content": {
+                    "Number": 1.0
+                }
+            },
+            {
+                "id": 1,
+                "name": "Argument",
+                "content": {
+                    "Identifier": "n"
+                }
+            },
+            {
+                "id": 2,
+                "name": "LessEquals",
+                "inputs": {
+                    "left": 1,
+                    "right": 0
+                }
+            },
+            {
+                "id": 3,
+                "name": "Return",
+                "inputs": {
+                    "result": 0
+                }
+            },
+            {
+                "id": 4,
+                "name": "Subtract",
+                "inputs": {
+                    "left": 1,
+                    "right": 0
+                }
+            },
+            {
+                "id": 5,
+                "name": "Factorial",
+                "inputs": {
+                    "n": 4
+                }
+            },
+            {
+                "id": 6,
+                "name": "Multiply",
+                "inputs": {
+                    "left": 1,
+                    "right": 5
+                }
+            },
+            {
+                "id": 7,
+                "name": "Return",
+                "inputs": {
+                    "result": 6
+                }
+            },
+            {
+                "id": 8,
+                "name": "If",
+                "inputs": {
+                    "condition": 2
+                },
+                "flows": {
+                    "then": 3,
+                    "else": 7
+                }
+            },
+            {
+                "id": 9,
+                "name": "Start",
+                "flows": {
+                    "flow": 8
+                }
+            }
+        ]
+    },
+    {
+        "name": "Main",
+        "start": 13,
+        "descs": [
+            {
+                "id": 10,
+                "name": "Number",
+                "content": {
+                    "Number": 6.0
+                }
+            },
+            {
+                "id": 11,
+                "name": "Factorial",
+                "inputs": {
+                    "n": 10
+                }
+            },
+            {
+                "id": 12,
+                "name": "Return",
+                "inputs": {
+                    "result": 11
+                }
+            },
+            {
+                "id": 13,
+                "name": "Start",
+                "flows": {
+                    "flow": 12
+                }
+            }
+        ]
+    }
+]
