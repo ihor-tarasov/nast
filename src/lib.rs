@@ -19,6 +19,8 @@ pub use node::*;
 pub use state::*;
 pub use value::*;
 
+pub use serde;
+
 use builder::*;
 
 pub fn step(nodes: &HashMap<usize, Node>, state: &mut State) -> Res<bool> {
