@@ -40,7 +40,7 @@ impl Eval for Call {
 
 impl Build for Call {
     fn push_input(&mut self, name: &String, id: usize, builder: &crate::Builder) -> Res<()> {
-        if let Some(function) = builder.functions.get(&builder.desc.name) {
+        if let Some(function) = builder.functions.iter().find(|f| &f.name == &builder.desc.name) {
             self.start_id = function.start;
             if self.arguments.len() != function.arguments.len() {
                 self.arguments.resize(function.arguments.len(), 0);

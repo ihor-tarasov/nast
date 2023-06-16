@@ -1,6 +1,5 @@
 use crate::{builder::Builder, desc, Desc, Nodes, Res};
 use serde::Deserialize;
-use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 pub struct Function {
@@ -13,7 +12,7 @@ pub struct Function {
     pub description: String,
 }
 
-pub type Functions = HashMap<String, Function>;
+pub type Functions = Vec<Function>;
 
 pub fn build(function: &Function, functions: &Functions, nodes: &mut Nodes) -> Res<()> {
     // TODO: More validation checks.

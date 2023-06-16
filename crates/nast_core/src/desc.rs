@@ -30,7 +30,12 @@ pub fn build(builder: Builder, nodes: &mut Nodes) -> Res<()> {
     let mut node = if let Ok(node) = Node::try_from(&builder.desc.name) {
         node
     } else {
-        if builder.functions.contains_key(&builder.desc.name) {
+        if builder
+            .functions
+            .iter()
+            .find(|f| &builder.desc.name == &f.name)
+            .is_some()
+        {
             call()
         } else {
             return Err(format!(

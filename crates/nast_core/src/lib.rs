@@ -40,14 +40,14 @@ pub fn run(nodes: &HashMap<usize, Node>, state: &mut State) -> Res<Value> {
 }
 
 pub fn build(functions: &Functions, nodes: &mut Nodes) -> Res<()> {
-    for function in functions.values() {
+    for function in functions {
         function::build(function, functions, nodes)?;
     }
     Ok(())
 }
 
 pub fn check(functions: &Functions, nodes: &Nodes) -> Res<()> {
-    for function in functions.values() {
+    for function in functions {
         if !nodes.contains_key(&function.start) {
             return Err(format!(
                 "Invalid start ID for function \"{}\"",
@@ -79,9 +79,9 @@ pub fn check(functions: &Functions, nodes: &Nodes) -> Res<()> {
 pub fn get_info(functions: &Functions) -> Vec<Info> {
     let mut result = Vec::new();
     result.extend(STD_INFOS.iter().cloned());
-    for (name, function) in functions {
+    for function in functions {
         result.push(Info {
-            name: Cow::Owned(name.to_string()),
+            name: Cow::Owned(function.name.to_string()),
             trigger: false,
             output: true,
             flows: Cow::Borrowed(&[]),
