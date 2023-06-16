@@ -1,6 +1,6 @@
 [package]
 name = "nast"
-version = "0.1.0"
+version = "0.5.0"
 edition = "2021"
 
 [workspace]
@@ -9,5 +9,5 @@ members = [
 ]
 
 [dependencies]
-nast_dylib = { path = "crates/nast_dylib", version = "0.1.0" }
-nast_json = { path = "crates/nast_json", version = "0.1.0" }
+nast_dylib = { path = "crates/nast_dylib", version = "0.5.0" }
+nast_json = { path = "crates/nast_json", version = "0.5.0" }
