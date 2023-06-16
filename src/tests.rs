@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{State, Value, build};
+use crate::{State, Value, build, check};
 
 #[test]
 fn factorial_test() {
@@ -15,8 +15,9 @@ fn factorial_test() {
     let mut nodes = HashMap::new();
 
     build(&functions, &mut nodes).unwrap();
+    check(&functions, &nodes).unwrap();
 
-    println!("{:#?}", nodes);
+    //println!("{:#?}", nodes);
     
     let mut state = State::new(functions.get("Main").unwrap().start, vec![]);
     match crate::run(&nodes, &mut state) {
